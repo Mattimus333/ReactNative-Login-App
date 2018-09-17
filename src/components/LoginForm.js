@@ -1,28 +1,64 @@
 import React, { Component } from 'react';
-import { TextInput } from 'react-native';
-import { Button, Card, CardItem } from './common';
+import { Text } from 'react-native';
+import firebase from 'firebase';
+import { Button, Card, CardItem, Input } from './common';
 
 class LoginForm extends Component {
-  state = { text: '' }
+  state = { email: '', password: '', error: '' };
+
+  onButtonPress() {
+    const { email, password } = this.state;
+    firebase.auth().signInWithEmailAndPassword(email, password)
+      .catch(() => {
+        firebase.auth().createUserWithEmailAndPassword(email, password)
+        .catch(() => {
+          this.setState({ error: 'Authention Failed.' });
+        });
+      });
+  }
 
   render() {
     return (
       <Card>
         <CardItem>
-          <TextInput
-            value={this.state.text}
-            onChangeText={text => this.setState({ text })}
-            style={{ height: 20, width: 100 }}
+          <Input
+            placeholder="user@gmail.com"
+            label="Email"
+            value={this.state.email}
+            onChangeText={email => this.setState({ email })}
           />
         </CardItem>
-        <CardItem />
+
         <CardItem>
-          <Button>
+          <Input
+            secureTextEntry
+            placeholder="password"
+            label="Password"
+            value={this.state.password}
+            onChangeText={password => this.setState({ password })}
+          />
+        </CardItem>
+
+        <Text style={styles.errorTextStyle}>
+          {this.state.error }
+        </Text>
+
+        <CardItem>
+          <Button onPress={this.onButtonPress.bind(this)}>
             Log In
           </Button>
         </CardItem>
+
       </Card>
     );
+  }
+}
+
+const styles = {
+  errorTextStyle: {
+    fontSize: 20,
+    alignSelf: 'center',
+    color: 'red'
   }
 }
 
